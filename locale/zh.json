@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "视频套件",
+    "description": "让模型真的看见视频：本地 ffmpeg 抽出带时间戳的静帧，faster-whisper 转写音轨，模型逐帧读真实像素。全程本地，不上传画面。"
+  }
+}
