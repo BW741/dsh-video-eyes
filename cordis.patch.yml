@@ -1,7 +1,8 @@
-# dsh bundle layer: 挂载 video-kit 的两个工具
-#   video_watch      抽静帧 + 转写（主入口）
-#   video_transcript 只转写
-# 引擎不打包在本插件里，走外部 video-kit 目录（见 README 的 DSH_VIDEO_KIT_ROOT）。
+# dsh bundle layer: 挂载 video-eyes 的三个工具
+#   video_watch        抽静帧 + 转写（主入口）
+#   video_transcript   只转写
+#   video_eyes_setup   首次使用引导：装引擎（ffmpeg 校验 + venv + faster-whisper + 模型）
+# 引擎不打包在本插件里，走外部 video-kit 目录（见 README 的 DSH_VIDEO_EYES_ROOT）。
 - insert:
-    - id: video-kit
-      name: 'dsh-video-kit'
+    - id: video-eyes
+      name: 'dsh-video-eyes'
