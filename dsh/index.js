@@ -1,4 +1,4 @@
-// dsh-video-kit — host half.
+// dsh-video-eyes — host half.
 //
 // 为什么要有这个插件：模型本身没有视频输入通道。这个插件把"看视频"拆成
 // 模型真能消费的两样东西——
@@ -11,8 +11,8 @@
 //   video-kit/scripts/kit_api.py + video-kit/.venv + video-kit/models/faster-whisper-small
 //
 // 环境变量：
-//   DSH_VIDEO_KIT_ROOT     video-kit 目录（默认 ./../../../ 相对本文件）
-//   DSH_VIDEO_KIT_PYTHON   该 kit 的 venv python（默认 <root>/.venv/Scripts/python.exe）
+//   DSH_VIDEO_EYES_ROOT     video-kit 目录（默认 ./../../../ 相对本文件）
+//   DSH_VIDEO_EYES_PYTHON   该 kit 的 venv python（默认 <root>/.venv/Scripts/python.exe）
 
 import { spawn } from 'node:child_process'
 import fs from 'node:fs'
@@ -31,7 +31,7 @@ try {
   defineTool = (options) => options
 }
 
-export const name = 'video-kit'
+export const name = 'video-eyes'
 export const inject = ['tools']
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -87,7 +87,7 @@ const WATCH_SCHEMA = {
 const TIMEOUT_MS = 20 * 60_000 // 下载 + 抽帧 + CPU 转写（1 小时视频可能十几分钟）
 
 // 引擎位置可以用一个文本文件钉住：<包根>/engine/.kit-root 里写一行绝对路径。
-// video_kit_setup 装完会写这个文件，所以重装插件之后只要引擎还在，就不必再设环境变量。
+// video_eyes_setup 装完会写这个文件，所以重装插件之后只要引擎还在，就不必再设环境变量。
 function readKitRootFile() {
   try {
     const p = path.resolve(__dirname, '..', 'engine', '.kit-root')
@@ -102,9 +102,9 @@ function readKitRootFile() {
 function resolveKit(config) {
   const candidates = [
     config.kitRoot,
-    process.env.DSH_VIDEO_KIT_ROOT,
+    process.env.DSH_VIDEO_EYES_ROOT,
     readKitRootFile(),
-    path.resolve(__dirname, '..', '..', '..'), // video-kit/plugin/dsh-video-kit/dsh -> video-kit
+    path.resolve(__dirname, '..', '..', '..'), // video-kit/plugin/dsh-video-eyes/dsh -> video-kit
     'C:\\Users\\bjclo\\Documents\\deepseek-harness\\default-workspace\\video-kit', // 作者本机，发布版可删
   ].filter(Boolean)
   for (const c of candidates) {
@@ -118,7 +118,7 @@ function resolveKit(config) {
 function resolvePython(config, kit) {
   const candidates = [
     config.pythonPath,
-    process.env.DSH_VIDEO_KIT_PYTHON,
+    process.env.DSH_VIDEO_EYES_PYTHON,
     path.join(kit, '.venv', 'Scripts', 'python.exe'),
     path.join(kit, '.venv', 'bin', 'python'),
   ].filter(Boolean)
@@ -237,9 +237,9 @@ export function apply(ctx, config = {}) {
       throw new Error(
         `${error.message}\n\n` +
           '引擎还没装。两种办法：\n' +
-          '  A) 调用 video_kit_setup({ confirm: true, root: "<会话工作区>\\video-kit" }) —— ' +
+          '  A) 调用 video_eyes_setup({ confirm: true, root: "<会话工作区>\\video-kit" }) —— ' +
           '插件自带安装器（ffmpeg 检查 + 独立 venv + faster-whisper + 483MB 模型，约 700MB，一次性，纯本地）；\n' +
-          '  B) 若本机已有装好的 video-kit 目录，设环境变量 DSH_VIDEO_KIT_ROOT 指向它后重启应用。\n' +
+          '  B) 若本机已有装好的 video-kit 目录，设环境变量 DSH_VIDEO_EYES_ROOT 指向它后重启应用。\n' +
           '注意：在 DSH 沙箱里 ffmpeg 只能写会话工作区，root 必须落在工作区内。',
       )
     }
@@ -294,7 +294,7 @@ export function apply(ctx, config = {}) {
         '--max-frames', String(args.maxFrames || 24),
         '--language', args.language || 'zh', '--srt']
       if (args.transcript === false) cli.push('--no-transcript')
-      return runJson(python, script, cli, exec.signal, (m) => console.error(`[video-kit] ${m}`))
+      return runJson(python, script, cli, exec.signal, (m) => console.error(`[video-eyes] ${m}`))
     },
   })
 
@@ -333,12 +333,12 @@ export function apply(ctx, config = {}) {
       if (!job) {
         if (!args.target) throw new Error(`${toolName} 需要 job 或 target`)
         const created = await runJson(python, script, ['frames', '--source', args.target, '--job', defaultJob('a'), '--max-frames', '1'],
-          exec.signal, (m) => console.error(`[video-kit] ${m}`))
+          exec.signal, (m) => console.error(`[video-eyes] ${m}`))
         if (!created.ok) throw new Error(created.error || '抽帧失败')
         job = created.job
       }
       const cli = ['transcript', '--job', job, '--language', args.language || 'zh', '--srt']
-      return runJson(python, script, cli, exec.signal, (m) => console.error(`[video-kit] ${m}`))
+      return runJson(python, script, cli, exec.signal, (m) => console.error(`[video-eyes] ${m}`))
     },
   })
 
@@ -377,7 +377,7 @@ export function apply(ctx, config = {}) {
     isConcurrencySafe: () => false,
     presentCall: (args) => ({ card: 'generic', title: `${toolName}`, kind: 'write', rawInput: args }),
     async execute(args, exec) {
-      const root = (args.root || process.env.DSH_VIDEO_KIT_ROOT || '').trim()
+      const root = (args.root || process.env.DSH_VIDEO_EYES_ROOT || '').trim()
       if (!args.confirm) {
         return {
           ok: false, skipped: true,
@@ -391,7 +391,7 @@ export function apply(ctx, config = {}) {
       if (!fs.existsSync(BUNDLED_INSTALLER)) {
         throw new Error(`插件里没有找到安装器：${BUNDLED_INSTALLER}（这个包可能被裁过）`)
       }
-      const ffmpeg = process.env.DSH_VIDEO_KIT_FFMPEG
+      const ffmpeg = process.env.DSH_VIDEO_EYES_FFMPEG
       const argv = ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', BUNDLED_INSTALLER, '-Root', root]
       if (args.skipModel) argv.push('-SkipModel')
       if (ffmpeg && fs.existsSync(ffmpeg)) argv.push('-FfmpegPath', ffmpeg)
@@ -400,7 +400,7 @@ export function apply(ctx, config = {}) {
       const ok = r.code === 0
       if (ok) {
         // 装完立刻切到这份引擎，后续调用无需重启
-        process.env.DSH_VIDEO_KIT_ROOT = root
+        process.env.DSH_VIDEO_EYES_ROOT = root
         cached = null
         try {
           fs.writeFileSync(path.resolve(__dirname, '..', 'engine', '.kit-root'), root + '\n', 'utf8')
@@ -421,11 +421,11 @@ export function apply(ctx, config = {}) {
   try {
     ctx.tools.register(watchTool(config.toolName || 'video_watch'))
     ctx.tools.register(transcribeTool(config.transcribeToolName || 'video_transcript'))
-    ctx.tools.register(setupTool(config.setupToolName || 'video_kit_setup'))
-    probe(`register-OK pid=${process.pid} tools=video_watch,video_transcript,video_kit_setup`)
+    ctx.tools.register(setupTool(config.setupToolName || 'video_eyes_setup'))
+    probe(`register-OK pid=${process.pid} tools=video_watch,video_transcript,video_eyes_setup`)
   } catch (error) {
     // 注册失败必须留下可查的痕迹：宿主的 console.error 在桌面端基本看不到。
-    console.error(`[video-kit] tool registration skipped: ${error}`)
+    console.error(`[video-eyes] tool registration skipped: ${error}`)
     probe(`register-FAILED ${String((error && error.message) || error)}`)
   }
 }
