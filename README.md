@@ -1,4 +1,4 @@
-# dsh-video-kit
+# dsh-video-eyes
 
 让 DSH 里的模型**真的看到**一段视频：本地 ffmpeg 按时间均匀抽静帧 + faster-whisper 转写音轨，
 把「带时间戳的帧路径」和「全文文字」一起交给模型，模型再用 `read_image` 逐张看图。
@@ -27,14 +27,14 @@
 3. **whisper 模型**：`<video-kit>\models\faster-whisper-small`（约 483 MB，本地加载，不联网）。
 4. 引擎脚本：`<video-kit>\scripts\kit_api.py` 与 `transcribe.py`（本插件的所有实际工作都在这里）。
 
-**这些不用你手工装**：插件包里自带安装器（`engine/install.ps1`），首次调用会引导执行 `video_kit_setup`。
+**这些不用你手工装**：插件包里自带安装器（`engine/install.ps1`），首次调用会引导执行 `video_eyes_setup`。
 
 ## 首次使用：装引擎
 
 新机器上第一次调 `video_watch` 会得到一段引导而不是干巴巴的报错，照做即可：
 
 ```js
-video_kit_setup({ confirm: true, root: "<会话工作区>\\video-kit" })
+video_eyes_setup({ confirm: true, root: "<会话工作区>\\video-kit" })
 ```
 
 它会依次做：找 Python 3.10+ → 找 ffmpeg → 检查 ffmpeg 能否写入该目录 → 建独立 venv →
@@ -50,10 +50,10 @@ video_kit_setup({ confirm: true, root: "<会话工作区>\\video-kit" })
 | 来源 | 作用 |
 | --- | --- |
 | 插件 config `kitRoot` | 最高优先级 |
-| 环境变量 `DSH_VIDEO_KIT_ROOT` | 指向含 `scripts/kit_api.py` 的目录 |
-| `<包>/engine/.kit-root` | 一行绝对路径；`video_kit_setup` 成功后自动写入 |
+| 环境变量 `DSH_VIDEO_EYES_ROOT` | 指向含 `scripts/kit_api.py` 的目录 |
+| `<包>/engine/.kit-root` | 一行绝对路径；`video_eyes_setup` 成功后自动写入 |
 | 相对位置 / 作者本机路径 | 最后兜底 |
-| `DSH_VIDEO_KIT_PYTHON` / config `pythonPath` | 覆盖 `<kit>/.venv/Scripts/python.exe` |
+| `DSH_VIDEO_EYES_PYTHON` / config `pythonPath` | 覆盖 `<kit>/.venv/Scripts/python.exe` |
 
 ## 工具
 
@@ -69,7 +69,7 @@ video_kit_setup({ confirm: true, root: "<会话工作区>\\video-kit" })
 | `language` | string | 转写语言，默认 `zh` |
 | `job` | string | 作业名（默认按时间生成）；同名作业不可重复 |
 
-### `video_kit_setup`
+### `video_eyes_setup`
 
 | 参数 | 类型 | 说明 |
 | --- | --- | --- |
@@ -102,8 +102,8 @@ video_kit_setup({ confirm: true, root: "<会话工作区>\\video-kit" })
 ## 装到 DSH
 
 ```powershell
-# 1. 打包（在 plugin\dsh-video-kit 目录）
-npm pack                     # 产出 dsh-video-kit-<version>.tgz
+# 1. 打包（在 plugin\dsh-video-eyes 目录）
+npm pack                     # 产出 dsh-video-eyes-<version>.tgz
 
 # 2. 安装到当前 desktop profile（需能写 ~/.dsh）
 dsh plugin add <path-to-tgz> --profile desktop
@@ -126,7 +126,7 @@ profile 的工具表只在**宿主进程启动时**按 bundle 栈组一次。DSH
 
 ```powershell
 dsh --profile <tmp> --dump-config | Select-String -Pattern 'video-kit' -Context 0,1
-# 期望看到：  - id: video-kit / name: dsh-video-kit
+# 期望看到：  - id: video-kit / name: dsh-video-eyes
 ```
 
 ### 坑：同版本号覆盖安装不生效
@@ -158,7 +158,7 @@ node dsh/index.js --self-test     # schema + render 三种形态
 
 ## 与 dsh-video-understand 的区别
 
-|  | dsh-video-kit（本插件） | dsh-video-understand |
+|  | dsh-video-eyes（本插件） | dsh-video-understand |
 | --- | --- | --- |
 | 模型看到画面像素 | ✅ 逐张静帧（可自行看细节） | ❌ 默认只有文本信息层；L1/L2 才把几帧上传 MiMo |
 | 上传云端 | ❌ 全本地 | ✅ L1/L2 会上传帧到 MiMo |
