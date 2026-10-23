@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Video Kit",
+    "description": "Let the model actually see a video: local ffmpeg samples timestamped stills and faster-whisper transcribes the audio track, so the agent reads real pixels frame by frame. Fully local, nothing uploaded."
+  }
+}
