@@ -1,0 +1,7 @@
+# dsh bundle layer: 挂载 video-kit 的两个工具
+#   video_watch      抽静帧 + 转写（主入口）
+#   video_transcript 只转写
+# 引擎不打包在本插件里，走外部 video-kit 目录（见 README 的 DSH_VIDEO_KIT_ROOT）。
+- insert:
+    - id: video-kit
+      name: 'dsh-video-kit'
