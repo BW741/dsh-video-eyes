@@ -1,0 +1,59 @@
+{
+  "name": "dsh-video-kit",
+  "version": "0.2.2",
+  "description": "Let the model actually see a video: local ffmpeg samples timestamped stills and faster-whisper transcribes the audio, so the agent reads real pixels frame by frame. Fully local. 让模型真的「看见」视频：本地抽帧 + 转写，逐张 read_image 看真实像素，不上传画面。",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "^0.2.0-rc.2"
+  },
+  "scripts": {
+    "test:tools": "node index.js --self-test"
+  },
+  "files": [
+    "index.js",
+    "dsh/",
+    "engine/",
+    "cordis.patch.yml",
+    "locale/",
+    "icon.svg",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "plugin",
+    "video",
+    "video-understanding",
+    "bilibili",
+    "whisper",
+    "ffmpeg",
+    "offline",
+    "local"
+  ],
+  "engines": {
+    "node": ">=18",
+    "dsh": ">=0.2.0-rc.2 <0.3.0-0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BW741/dsh-video-kit.git"
+  },
+  "homepage": "https://github.com/BW741/dsh-video-kit#readme",
+  "bugs": {
+    "url": "https://github.com/BW741/dsh-video-kit/issues"
+  },
+  "license": "MIT"
+}
